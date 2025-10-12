@@ -1,0 +1,172 @@
+import 'package:e_commerce/core/providers/auth_provider.dart';
+import 'package:e_commerce/core/theme/text_style_helper.dart';
+import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  late GlobalKey<FormState> _formKey;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+  late TextEditingController _confirmPasswordController;
+  late TextEditingController _nameController;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+    _nameController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Create Account',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headline4?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  'Create a new account to get started and \nenjoy our app!',
+                  style: TextStyleHelper.bodyMedium(context),
+                ),
+                SizedBox(height: 32),
+                TextFormField(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  controller: _nameController,
+                  decoration: InputDecoration(labelText: 'Name'),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Please enter name';
+                    if (value!.length < 3 || value.length > 30) {
+                      return 'Name must be between 3 and 30 characters';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                TextFormField(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  controller: _emailController,
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Please enter email';
+                    if (!value!.contains('@')) {
+                      return 'Please enter valid email';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                TextFormField(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  controller: _passwordController,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter password';
+                    }
+                    if (value!.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                TextFormField(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+
+                  controller: _confirmPasswordController,
+                  decoration: InputDecoration(labelText: 'Confirm Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please confirm password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 24),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _signUp,
+                    child: _isLoading ? Text('...') : Text('Create Account'),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: TextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            Navigator.pushReplacementNamed(context, '/login');
+                          },
+                    child: Text('Already have an account? Login'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signUp() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = context.read<AuthenticationProvider>();
+      await authProvider.signUp(
+        _emailController.text.trim(),
+        _passwordController.text,
+        _nameController.text.trim(),
+      );
+
+      SnackbarHelper.info(
+        context: context,
+        title: 'Success',
+        message: 'Verification email sent! Please check your email.',
+      );
+
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      SnackbarHelper.error(
+        context: context,
+        title: 'Error',
+        message: 'Sign up failed: ${e.toString()}',
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+}
