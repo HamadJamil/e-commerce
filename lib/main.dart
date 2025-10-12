@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:toastification/toastification.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/product_provider.dart';
 import 'core/providers/cart_provider.dart';
@@ -20,7 +21,7 @@ import 'features/home/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(ToastificationWrapper(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

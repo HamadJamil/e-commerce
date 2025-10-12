@@ -1,6 +1,7 @@
 import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -12,15 +13,27 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late GlobalKey<FormState> _formKey;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+  late FocusNode _emailFocusNode;
+  late FocusNode _passwordFocusNode;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _emailFocusNode = FocusNode();
+    _passwordFocusNode = FocusNode();
   }
 
   Future<void> _login() async {
@@ -116,6 +129,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 32),
                 TextFormField(
+                  focusNode: _emailFocusNode,
+                  onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -132,6 +147,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 16),
                 TextFormField(
+                  focusNode: _passwordFocusNode,
+                  onFieldSubmitted: (_) => _login(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _passwordController,
                   decoration: InputDecoration(
@@ -159,7 +176,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: authProvider.isLoading ? null : _login,
-                    child: authProvider.isLoading ? Text('...') : Text('Login'),
+                    child: authProvider.isLoading
+                        ? LoadingAnimationWidget.stretchedDots(
+                            color: Colors.black,
+                            size: 20,
+                          )
+                        : Text('Login'),
                   ),
                 ),
 

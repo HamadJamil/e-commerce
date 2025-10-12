@@ -80,7 +80,7 @@ class SnackbarHelper {
     toastification.show(
       context: context,
       type: type,
-      style: ToastificationStyle.flat,
+      style: ToastificationStyle.flatColored,
       autoCloseDuration: duration,
       title: Text(title),
       description: message != null ? Text(message) : null,

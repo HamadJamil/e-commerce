@@ -45,29 +45,23 @@ class AuthenticationProvider with ChangeNotifier {
 
   Future<void> signOut() async {
     try {
-      _setLoading(true);
       _error = '';
       await _authService.signOut();
       notifyListeners();
     } catch (e) {
       _error = e.toString();
       rethrow;
-    } finally {
-      _setLoading(false);
     }
   }
 
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      _setLoading(true);
       _error = '';
       await _authService.sendPasswordResetEmail(email);
       notifyListeners();
     } catch (e) {
       _error = e.toString();
       rethrow;
-    } finally {
-      _setLoading(false);
     }
   }
 

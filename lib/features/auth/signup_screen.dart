@@ -2,6 +2,7 @@ import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/core/theme/text_style_helper.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -18,10 +19,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late TextEditingController _confirmPasswordController;
   late TextEditingController _nameController;
   bool _isLoading = false;
+  late FocusNode _nameFocusNode;
+  late FocusNode _emailFocusNode;
+  late FocusNode _passwordFocusNode;
+  late FocusNode _confirmPasswordFocusNode;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    _nameFocusNode = FocusNode();
+    _emailFocusNode = FocusNode();
+    _passwordFocusNode = FocusNode();
+    _confirmPasswordFocusNode = FocusNode();
     _formKey = GlobalKey<FormState>();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
@@ -55,9 +73,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 SizedBox(height: 32),
                 TextFormField(
+                  focusNode: _nameFocusNode,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _nameController,
                   decoration: InputDecoration(labelText: 'Name'),
+                  onFieldSubmitted: (_) => _emailFocusNode.requestFocus(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) return 'Please enter name';
                     if (value!.length < 3 || value.length > 30) {
@@ -68,6 +88,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 SizedBox(height: 16),
                 TextFormField(
+                  focusNode: _emailFocusNode,
+                  onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _emailController,
                   decoration: InputDecoration(labelText: 'Email'),
@@ -81,6 +103,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 SizedBox(height: 16),
                 TextFormField(
+                  focusNode: _passwordFocusNode,
+                  onFieldSubmitted: (_) =>
+                      _confirmPasswordFocusNode.requestFocus(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _passwordController,
                   decoration: InputDecoration(labelText: 'Password'),
@@ -97,8 +122,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 SizedBox(height: 16),
                 TextFormField(
+                  focusNode: _confirmPasswordFocusNode,
+                  onFieldSubmitted: (_) => _signUp(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(labelText: 'Confirm Password'),
                   obscureText: true,
@@ -118,7 +144,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _signUp,
-                    child: _isLoading ? Text('...') : Text('Create Account'),
+                    child: _isLoading
+                        ? LoadingAnimationWidget.stretchedDots(
+                            color: Colors.black,
+                            size: 20,
+                          )
+                        : Text('Create Account'),
                   ),
                 ),
                 Align(
