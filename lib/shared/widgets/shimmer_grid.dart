@@ -15,7 +15,7 @@ class ProductShimmerGrid extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 14,
-        childAspectRatio: 0.72,
+        childAspectRatio: 0.636,
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) {

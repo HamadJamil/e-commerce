@@ -19,6 +19,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late TextEditingController _confirmPasswordController;
   late TextEditingController _nameController;
   bool _isLoading = false;
+  bool _isChecked = true;
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   late FocusNode _nameFocusNode;
   late FocusNode _emailFocusNode;
   late FocusNode _passwordFocusNode;
@@ -108,8 +111,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       _confirmPasswordFocusNode.requestFocus(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _passwordController,
-                  decoration: InputDecoration(labelText: 'Password'),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: !_isPasswordVisible,
+
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter password';
@@ -126,8 +144,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onFieldSubmitted: (_) => _signUp(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _confirmPasswordController,
-                  decoration: InputDecoration(labelText: 'Confirm Password'),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: !_isConfirmPasswordVisible,
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please confirm password';
@@ -138,7 +171,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Checkbox(
+                      value: _isChecked,
+                      onChanged: (value) {
+                        setState(() {
+                          _isChecked = value ?? false;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyleHelper.bodyMedium(context),
+                          children: [
+                            const TextSpan(text: 'I accept the '),
+                            TextSpan(
+                              text: 'Terms & Conditions',
+                              style: TextStyleHelper.bodyMedium(context)
+                                  ?.copyWith(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const TextSpan(text: ' and '),
+                            TextSpan(
+                              text: 'Privacy Policy',
+                              style: TextStyleHelper.bodyMedium(context)
+                                  ?.copyWith(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 12),
 
                 SizedBox(
                   width: double.infinity,
@@ -152,16 +227,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         : Text('Create Account'),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.center,
-                  child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () {
-                            Navigator.pushReplacementNamed(context, '/login');
-                          },
-                    child: Text('Already have an account? Login'),
-                  ),
+                SizedBox(height: 32),
+                const Row(
+                  children: [
+                    Expanded(child: Divider(thickness: 1)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text('OR'),
+                    ),
+                    Expanded(child: Divider(thickness: 1)),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Already have an account? '),
+                    TextButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              Navigator.pushReplacementNamed(context, '/login');
+                            },
+                      child: Text('Login'),
+                    ),
+                  ],
                 ),
               ],
             ),

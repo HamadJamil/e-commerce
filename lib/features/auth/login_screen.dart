@@ -19,6 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
   late FocusNode _emailFocusNode;
   late FocusNode _passwordFocusNode;
 
+  bool _isPasswordVisible = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -154,8 +156,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     prefixIcon: Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   validator: (value) {
                     if (value?.isEmpty ?? true) return 'Please enter password';
                     return null;
@@ -184,14 +198,35 @@ class _LoginScreenState extends State<LoginScreen> {
                         : Text('Login'),
                   ),
                 ),
-
-                TextButton(
-                  onPressed: authProvider.isLoading
-                      ? null
-                      : () {
-                          Navigator.pushReplacementNamed(context, '/signup');
-                        },
-                  child: Text('Create Account'),
+                SizedBox(height: 32),
+                const Row(
+                  children: [
+                    Expanded(child: Divider(thickness: 1)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text('OR'),
+                    ),
+                    Expanded(child: Divider(thickness: 1)),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Don\'t have an account? '),
+                    TextButton(
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      onPressed: authProvider.isLoading
+                          ? null
+                          : () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                '/signup',
+                              );
+                            },
+                      child: Text('Sign Up'),
+                    ),
+                  ],
                 ),
               ],
             ),
