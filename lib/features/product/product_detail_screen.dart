@@ -48,6 +48,7 @@ class ProductDetailScreen extends StatelessWidget {
                   );
                 },
               ),
+              IconButton(onPressed: () {}, icon: Icon(Icons.share)),
             ],
           ),
           SliverToBoxAdapter(

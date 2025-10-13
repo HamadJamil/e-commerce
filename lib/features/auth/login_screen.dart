@@ -63,40 +63,70 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showVerificationDialog(AuthenticationProvider authProvider) {
-    showDialog(
+    showModalBottomSheet(
+      showDragHandle: true,
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Email Not Verified'),
-        content: Text(
-          'Please verify your email address before logging in. '
-          'Check your inbox for the verification email.',
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          top: 16,
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.viewPaddingOf(context).bottom,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await authProvider.sendEmailVerification();
-                SnackbarHelper.success(
-                  context: context,
-                  title: 'Success',
-                  message: 'Verification email sent!',
-                );
-              } catch (e) {
-                SnackbarHelper.error(
-                  context: context,
-                  title: 'Error',
-                  message: e.toString(),
-                );
-              }
-            },
-            child: Text('Resend Email'),
-          ),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Email Not Verified',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Please verify your email address before logging in. '
+              'Check your inbox for the verification email.',
+            ),
+            SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('OK'),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      try {
+                        await authProvider.sendEmailVerification();
+                        SnackbarHelper.success(
+                          context: context,
+                          title: 'Success',
+                          message: 'Verification email sent!',
+                        );
+                      } catch (e) {
+                        SnackbarHelper.error(
+                          context: context,
+                          title: 'Error',
+                          message: e.toString(),
+                        );
+                      }
+                    },
+                    child: Text('Resend Email'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -238,55 +268,85 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showForgotPasswordDialog() {
     final emailController = TextEditingController();
-
-    showDialog(
+    showModalBottomSheet(
+      showDragHandle: true,
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Reset Password'),
-        content: TextFormField(
-          controller: emailController,
-          decoration: InputDecoration(
-            labelText: 'Email',
-            hintText: 'Enter your email address',
-          ),
-          validator: (value) {
-            if (value?.isEmpty ?? true) return 'Please enter email';
-            if (!value!.contains('@')) return 'Please enter valid email';
-            return null;
-          },
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          left: 16.0,
+          right: 16.0,
+          bottom: MediaQuery.viewPaddingOf(context).bottom,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (emailController.text.isNotEmpty &&
-                  emailController.text.contains('@')) {
-                Navigator.pop(context);
-                try {
-                  final authProvider = context.read<AuthenticationProvider>();
-                  await authProvider.sendPasswordResetEmail(
-                    emailController.text.trim(),
-                  );
-                  SnackbarHelper.success(
-                    context: context,
-                    title: 'Success',
-                    message: 'Password reset email sent!',
-                  );
-                } catch (e) {
-                  SnackbarHelper.error(
-                    context: context,
-                    title: 'Error',
-                    message: e.toString(),
-                  );
-                }
-              }
-            },
-            child: Text('Send Reset Link'),
-          ),
-        ],
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Reset Password',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                hintText: 'Enter your email address',
+              ),
+              validator: (value) {
+                if (value?.isEmpty ?? true) return 'Please enter email';
+                if (!value!.contains('@')) return 'Please enter valid email';
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel'),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (emailController.text.isNotEmpty &&
+                          emailController.text.contains('@')) {
+                        Navigator.pop(context);
+                        try {
+                          final authProvider = context
+                              .read<AuthenticationProvider>();
+                          await authProvider.sendPasswordResetEmail(
+                            emailController.text.trim(),
+                          );
+                          SnackbarHelper.success(
+                            context: context,
+                            title: 'Success',
+                            message: 'Password reset email sent!',
+                          );
+                        } catch (e) {
+                          SnackbarHelper.error(
+                            context: context,
+                            title: 'Error',
+                            message: e.toString(),
+                          );
+                        }
+                      }
+                    },
+                    child: Text('Send Reset Link'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

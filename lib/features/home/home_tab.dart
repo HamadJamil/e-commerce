@@ -102,13 +102,26 @@ class _HomeTabState extends State<HomeTab> {
             physics: AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverAppBar(
-                title: Text(
-                  'Opal Cart',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    fontFamily: "Poppins",
-                  ),
+                title: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: LottieBuilder.asset(
+                        'assets/logo.json',
+                        repeat: false,
+                        width: 40,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Opal Cart',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        fontFamily: "Poppins",
+                      ),
+                    ),
+                  ],
                 ),
                 floating: true,
                 snap: true,
@@ -144,11 +157,34 @@ class _HomeTabState extends State<HomeTab> {
                 ),
               ),
 
+              // Heading
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Categories',
+                    style: TextStyleHelper.titleLarge(
+                      context,
+                    )?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
               // Categories Section
               SliverToBoxAdapter(
                 child: CategorySection(onCategorySelected: _onCategorySelected),
               ),
 
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Products',
+                    style: TextStyleHelper.titleLarge(
+                      context,
+                    )?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
               // Products Grid
               _buildProductsGrid(),
 
@@ -251,12 +287,11 @@ class _HomeTabState extends State<HomeTab> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   LottieBuilder.asset(
-                    "assets/no_products.json",
-                    repeat: true,
-                    height: 240,
-                    width: 240,
+                    "assets/logo.json",
+                    repeat: false,
+                    height: 132,
+                    width: 132,
                   ),
-                  SizedBox(height: 16),
                   Text(
                     'No products found',
                     style: Theme.of(context).textTheme.headline6,

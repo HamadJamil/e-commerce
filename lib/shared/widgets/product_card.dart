@@ -3,7 +3,6 @@ import 'package:e_commerce/core/providers/favorites_provider.dart';
 import 'package:e_commerce/features/home/category_section.dart';
 import 'package:e_commerce/features/product/product_detail_screen.dart';
 import 'package:e_commerce/shared/models/product_model.dart';
-import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -101,13 +100,6 @@ class ProductCard extends StatelessWidget {
                   ),
                   onPressed: () {
                     favoritesProvider.toggleFavorite(product);
-                    SnackbarHelper.success(
-                      context: context,
-                      title: 'Success',
-                      message: isFavorite
-                          ? 'Removed from favorites'
-                          : 'Added to favorites',
-                    );
                   },
                 ),
               ),
@@ -122,18 +114,8 @@ class ProductCard extends StatelessWidget {
                       onPressed: () {
                         if (isInCart) {
                           cartProvider.removeFromCart(product);
-                          SnackbarHelper.success(
-                            context: context,
-                            title: 'Success',
-                            message: 'Removed from cart',
-                          );
                         } else {
                           cartProvider.addToCart(product);
-                          SnackbarHelper.success(
-                            context: context,
-                            title: 'Success',
-                            message: 'Added to cart',
-                          );
                         }
                       },
                       icon: Icon(isInCart ? Icons.remove : Icons.add),
@@ -153,7 +135,7 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          ),
         );
       },
     );

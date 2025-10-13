@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Hero(
           tag: 'app_logo',
           child: LottieBuilder.asset(
-            'assets/lottie_logo.json',
+            'assets/splash.json',
             width: 180,
             height: 180,
           ),

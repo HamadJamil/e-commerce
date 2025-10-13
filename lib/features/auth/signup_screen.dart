@@ -19,7 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late TextEditingController _confirmPasswordController;
   late TextEditingController _nameController;
   bool _isLoading = false;
-  bool _isChecked = true;
+  bool _isChecked = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   late FocusNode _nameFocusNode;
