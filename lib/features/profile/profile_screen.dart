@@ -1,6 +1,10 @@
 // lib/features/profile/profile_screen.dart (Updated Theme Section)
 import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/features/favorites/favorites_screen.dart';
+import 'package:e_commerce/features/profile/address_screen.dart';
+import 'package:e_commerce/features/profile/order_history_screen.dart';
+import 'package:e_commerce/features/profile/privacy_policy_screen.dart';
+import 'package:e_commerce/features/profile/terms_conditions_screen.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:e_commerce/shared/widgets/theme_preview_card.dart';
 import 'package:flutter/material.dart';
@@ -226,6 +230,42 @@ class ProfileScreen extends StatelessWidget {
           ),
           Divider(height: 1),
           ListTile(
+            leading: Icon(Icons.location_on_outlined, color: Colors.green),
+            title: Text('Address', style: TextStyleHelper.bodyLarge(context)),
+            subtitle: Text(
+              'Manage your shipping address',
+              style: TextStyleHelper.bodySmall(
+                context,
+              )?.copyWith(color: Colors.grey),
+            ),
+            trailing: Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddressScreen()),
+              );
+            },
+          ),
+          Divider(height: 1),
+          ListTile(
+            leading: Icon(Icons.view_timeline_outlined, color: Colors.blue),
+            title: Text('History', style: TextStyleHelper.bodyLarge(context)),
+            subtitle: Text(
+              'Order history',
+              style: TextStyleHelper.bodySmall(
+                context,
+              )?.copyWith(color: Colors.grey),
+            ),
+            trailing: Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OrderHistoryScreen()),
+              );
+            },
+          ),
+          Divider(height: 1),
+          ListTile(
             leading: Icon(Icons.notifications, color: Colors.orange),
             title: Text(
               'Notifications',
@@ -256,10 +296,9 @@ class ProfileScreen extends StatelessWidget {
             ),
             trailing: Icon(Icons.chevron_right),
             onTap: () {
-              SnackbarHelper.info(
-                context: context,
-                title: 'Privacy Policy',
-                message: 'Coming soon',
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()),
               );
             },
           ),
@@ -272,10 +311,11 @@ class ProfileScreen extends StatelessWidget {
             ),
             trailing: Icon(Icons.chevron_right),
             onTap: () {
-              SnackbarHelper.info(
-                context: context,
-                title: 'Terms & Conditions',
-                message: 'Coming soon',
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TermsConditionsScreen(),
+                ),
               );
             },
           ),

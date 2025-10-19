@@ -11,8 +11,16 @@ class CartProvider with ChangeNotifier {
 
   List<CartItem> get items => _items;
 
-  double get totalAmount {
-    return _items.fold(0, (sum, item) => sum + item.totalPrice);
+  double get actualAmount {
+    return _items.fold(0, (sum, item) => sum + item.actualPrice);
+  }
+
+  double get discountedAmount {
+    return _items.fold(0, (sum, item) => sum + item.discountedPrice);
+  }
+
+  double get totalDiscount {
+    return _items.fold(0, (sum, item) => sum + item.totalDiscount);
   }
 
   CartProvider() {

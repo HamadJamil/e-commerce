@@ -1,4 +1,3 @@
-// lib/core/providers/auth_provider.dart
 import 'package:e_commerce/core/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';

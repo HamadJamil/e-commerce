@@ -160,7 +160,12 @@ class _HomeTabState extends State<HomeTab> {
               // Heading
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 8,
+                    bottom: 8,
+                  ),
                   child: Text(
                     'Categories',
                     style: TextStyleHelper.titleLarge(
@@ -176,7 +181,12 @@ class _HomeTabState extends State<HomeTab> {
 
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: 8,
+                  ),
                   child: Text(
                     'Products',
                     style: TextStyleHelper.titleLarge(

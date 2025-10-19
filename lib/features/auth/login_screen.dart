@@ -136,129 +136,133 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.watch<AuthenticationProvider>();
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              children: [
-                LottieBuilder.asset(
-                  'assets/logo.json',
-                  width: 200,
-                  height: 200,
-                  repeat: false,
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Welcome Back',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+                  LottieBuilder.asset(
+                    'assets/logo.json',
+                    width: 200,
+                    height: 200,
+                    repeat: false,
                   ),
-                ),
-                SizedBox(height: 32),
-                TextFormField(
-                  focusNode: _emailFocusNode,
-                  onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email),
+                  SizedBox(height: 20),
+                  Text(
+                    'Welcome Back',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) return 'Please enter email';
-                    if (!value!.contains('@')) {
-                      return 'Please enter valid email';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16),
-                TextFormField(
-                  focusNode: _passwordFocusNode,
-                  onFieldSubmitted: (_) => _login(),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                  SizedBox(height: 32),
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    focusNode: _emailFocusNode,
+                    onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) return 'Please enter email';
+                      if (!value!.contains('@')) {
+                        return 'Please enter valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    focusNode: _passwordFocusNode,
+                    onFieldSubmitted: (_) => _login(),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
                     ),
+                    obscureText: !_isPasswordVisible,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true)
+                        return 'Please enter password';
+                      return null;
+                    },
                   ),
-                  obscureText: !_isPasswordVisible,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) return 'Please enter password';
-                    return null;
-                  },
-                ),
-                Align(
-                  alignment: AlignmentGeometry.centerRight,
-                  child: TextButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () {
-                            _showForgotPasswordDialog();
-                          },
-                    child: Text('Forgot Password?'),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: authProvider.isLoading ? null : _login,
-                    child: authProvider.isLoading
-                        ? LoadingAnimationWidget.stretchedDots(
-                            color: Colors.black,
-                            size: 20,
-                          )
-                        : Text('Login'),
-                  ),
-                ),
-                SizedBox(height: 32),
-                const Row(
-                  children: [
-                    Expanded(child: Divider(thickness: 1)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text('OR'),
-                    ),
-                    Expanded(child: Divider(thickness: 1)),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Don\'t have an account? '),
-                    TextButton(
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  Align(
+                    alignment: AlignmentGeometry.centerRight,
+                    child: TextButton(
                       onPressed: authProvider.isLoading
                           ? null
                           : () {
-                              Navigator.pushReplacementNamed(
-                                context,
-                                '/signup',
-                              );
+                              _showForgotPasswordDialog();
                             },
-                      child: Text('Sign Up'),
+                      child: Text('Forgot Password?'),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: authProvider.isLoading ? null : _login,
+                      child: authProvider.isLoading
+                          ? LoadingAnimationWidget.stretchedDots(
+                              color: Colors.black,
+                              size: 20,
+                            )
+                          : Text('Login'),
+                    ),
+                  ),
+                  SizedBox(height: 32),
+                  const Row(
+                    children: [
+                      Expanded(child: Divider(thickness: 1)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text('OR'),
+                      ),
+                      Expanded(child: Divider(thickness: 1)),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Don\'t have an account? '),
+                      TextButton(
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : () {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/signup',
+                                );
+                              },
+                        child: Text('Sign Up'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -269,6 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showForgotPasswordDialog() {
     final emailController = TextEditingController();
     showModalBottomSheet(
+      isScrollControlled: true,
       showDragHandle: true,
       context: context,
       builder: (context) => Container(

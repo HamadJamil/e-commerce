@@ -1,9 +1,12 @@
+import 'package:e_commerce/core/providers/address_provider.dart';
 import 'package:e_commerce/core/providers/auth_provider.dart';
+import 'package:e_commerce/core/providers/order_provider.dart';
 import 'package:e_commerce/core/services/api_service.dart';
 import 'package:e_commerce/core/services/dummy_json_api_service.dart';
 import 'package:e_commerce/core/services/firebase_auth_service.dart';
 import 'package:e_commerce/core/services/firebase_auth_service_impl.dart';
 import 'package:e_commerce/features/auth/signup_screen.dart';
+import 'package:e_commerce/shared/models/order.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -49,6 +52,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<FavoritesProvider>(
           create: (_) => FavoritesProvider(),
         ),
+        ChangeNotifierProvider<AddressProvider>(
+          create: (_) => AddressProvider(),
+        ),
+        ChangeNotifierProvider<OrderProvider>(create: (_) => OrderProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

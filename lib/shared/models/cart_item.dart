@@ -6,7 +6,9 @@ class CartItem {
 
   CartItem({required this.product, this.quantity = 1});
 
-  double get totalPrice => product.discountedPrice * quantity;
+  double get actualPrice => product.price * quantity;
+  double get discountedPrice => product.discountedPrice * quantity;
+  double get totalDiscount => (product.price - product.discountedPrice);
 
   Map<String, dynamic> toJson() {
     return {'product': product.toJson(), 'quantity': quantity};

@@ -1,8 +1,8 @@
-// lib/features/cart/cart_screen.dart
 import 'package:e_commerce/core/providers/cart_provider.dart';
 import 'package:e_commerce/core/theme/text_style_helper.dart';
-import 'package:e_commerce/shared/models/cart_item.dart';
+import 'package:e_commerce/shared/widgets/cart_product_card.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
+import 'package:e_commerce/features/cart/checkout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +50,19 @@ class CartScreen extends StatelessWidget {
                   itemCount: cartProvider.items.length,
                   itemBuilder: (context, index) {
                     final item = cartProvider.items[index];
-                    return _buildCartItem(item, context);
+                    return CartProductCard(
+                      item: item,
+                      onRemove: () {
+                        context.read<CartProvider>().removeFromCart(
+                          item.product,
+                        );
+                        SnackbarHelper.info(
+                          context: context,
+                          title: 'Success',
+                          message: 'Removed from cart',
+                        );
+                      },
+                    );
                   },
                 ),
               ),
@@ -58,65 +70,6 @@ class CartScreen extends StatelessWidget {
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildCartItem(CartItem item, BuildContext context) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: NetworkImage(item.product.thumbnail),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.product.title,
-                    style: Theme.of(context).textTheme.subtitle1,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    '\$${item.product.discountedPrice.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 4),
-            QuantitySelector(item: item),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                context.read<CartProvider>().removeFromCart(item.product);
-                SnackbarHelper.info(
-                  context: context,
-                  title: 'Success',
-                  message: 'Removed from cart',
-                );
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -134,16 +87,12 @@ class CartScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total',
-                style: Theme.of(
-                  context,
-                ).textTheme.headline6?.copyWith(fontWeight: FontWeight.bold),
+                'Total Amount',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               Text(
-                '\$${cartProvider.totalAmount.toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.headline6?.copyWith(
-                  color: Theme.of(context).primaryColor,
-                ),
+                '\$${cartProvider.actualAmount.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(),
               ),
             ],
           ),
@@ -161,70 +110,9 @@ class CartScreen extends StatelessWidget {
   }
 
   void _checkout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Checkout'),
-        content: Text('Proceed with checkout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              SnackbarHelper.success(
-                context: context,
-                title: 'Success',
-                message: 'Order placed successfully!',
-              );
-              context.read<CartProvider>().clearCart();
-            },
-            child: Text('Confirm'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class QuantitySelector extends StatelessWidget {
-  final CartItem item;
-
-  const QuantitySelector({super.key, required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          icon: Icon(Icons.remove, size: 20),
-          onPressed: () {
-            context.read<CartProvider>().updateQuantity(
-              item.product,
-              item.quantity - 1,
-            );
-          },
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(item.quantity.toString()),
-        ),
-        IconButton(
-          icon: Icon(Icons.add, size: 20),
-          onPressed: () {
-            context.read<CartProvider>().updateQuantity(
-              item.product,
-              item.quantity + 1,
-            );
-          },
-        ),
-      ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CheckoutScreen()),
     );
   }
 }
