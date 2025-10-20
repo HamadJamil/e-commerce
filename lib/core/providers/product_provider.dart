@@ -9,6 +9,8 @@ class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
   List<Category> _categories = [];
+  // In-memory cache: category name -> ProductsResponse (contains products + total)
+  final Map<String, ProductsResponse> _categoryCache = {};
   bool _isLoading = false;
   String _error = '';
   int _currentPage = 0;
@@ -46,7 +48,12 @@ class ProductProvider with ChangeNotifier {
       final bool isFiltered = category != null && category != 'All';
 
       if (isFiltered) {
-        response = await _apiService.getProductsByCategory(category);
+        if (!refresh && _categoryCache.containsKey(category)) {
+          response = _categoryCache[category]!;
+        } else {
+          response = await _apiService.getProductsByCategory(category);
+          _categoryCache[category] = response;
+        }
         _hasMore = false;
         _currentPage = 0;
       } else {

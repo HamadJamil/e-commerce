@@ -104,6 +104,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 ),
                 SizedBox(height: 12),
                 TextFormField(
+                  keyboardType: TextInputType.number,
                   controller: _postalController,
                   decoration: InputDecoration(
                     labelText: 'Postal Code',

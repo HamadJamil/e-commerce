@@ -32,4 +32,28 @@ class Address {
       isDefault: isDefault ?? this.isDefault,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'addressLine': addressLine,
+      'city': city,
+      'postalCode': postalCode,
+      'isDefault': isDefault,
+    };
+  }
+
+  factory Address.fromMap(Map<String, dynamic> map) {
+    return Address(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      addressLine: map['addressLine'] as String,
+      city: map['city'] as String,
+      postalCode: map['postalCode'] as String,
+      isDefault: map['isDefault'] == true,
+    );
+  }
+
+  String toJson() => toMap().toString();
 }

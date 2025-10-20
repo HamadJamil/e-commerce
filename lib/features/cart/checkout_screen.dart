@@ -1,6 +1,8 @@
+import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/core/providers/cart_provider.dart';
 import 'package:e_commerce/core/providers/address_provider.dart';
 import 'package:e_commerce/core/providers/order_provider.dart';
+import 'package:e_commerce/core/services/email_service.dart';
 import 'package:e_commerce/shared/models/address.dart';
 import 'package:e_commerce/features/profile/address_screen.dart';
 import 'package:e_commerce/shared/widgets/cart_product_card.dart';
@@ -26,8 +28,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    final userEmail = context.read<AuthenticationProvider>().currentUser?.email;
     _formKey = GlobalKey<FormState>();
     _emailController = TextEditingController();
+    _emailController.text = userEmail ?? '';
     _phoneController = TextEditingController();
     _addressController = TextEditingController();
   }
@@ -164,26 +168,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
         const SizedBox(height: 16),
         TextFormField(
+          enabled: false,
           controller: _emailController,
           decoration: InputDecoration(
             labelText: 'Email',
             border: OutlineInputBorder(),
           ),
           keyboardType: TextInputType.emailAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your email';
-            }
-            if (!value.contains('@')) {
-              return 'Please enter a valid email';
-            }
-            return null;
-          },
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _phoneController,
           decoration: InputDecoration(
+            prefix: Text('+92 '),
             labelText: 'Phone Number',
             border: OutlineInputBorder(),
           ),
@@ -191,6 +188,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your phone number';
+            }
+            if (value.length < 10 || value.length > 11) {
+              return 'Please enter a valid phone number';
             }
             return null;
           },
@@ -363,6 +363,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cartProvider = context.read<CartProvider>();
     final addressProvider = context.read<AddressProvider>();
     final orderProvider = context.read<OrderProvider>();
+    final emailService = context.read<EmailService?>();
     final addresses = addressProvider.addresses;
     final selectedAddress = addresses.isNotEmpty
         ? addresses.firstWhere(
@@ -379,7 +380,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           )
         : null;
 
-    // Add order to history
     if (selectedAddress != null && cartProvider.items.isNotEmpty) {
       orderProvider.addOrder(
         items: List.from(cartProvider.items),
@@ -387,13 +387,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         address: selectedAddress,
         paymentMethod: _selectedPaymentMethod,
       );
-    }
 
-    SnackbarHelper.success(
-      context: context,
-      title: 'Success',
-      message: 'Your order has been placed successfully!',
-    );
+      final email = _emailController.text.trim();
+      final itemsSummary = cartProvider.items
+          .map((c) => '${c.product.title} x${c.quantity}')
+          .join('\n');
+
+      if (emailService != null && email.isNotEmpty) {
+        emailService
+            .sendOrderConfirmation(
+              toEmail: email,
+              customerName:
+                  context
+                      .read<AuthenticationProvider>()
+                      .currentUser
+                      ?.displayName ??
+                  '',
+              orderId: DateTime.now().millisecondsSinceEpoch.toString(),
+              itemsSummary: itemsSummary,
+              total: cartProvider.discountedAmount,
+              address:
+                  '${selectedAddress.addressLine}, ${selectedAddress.city}, ${selectedAddress.postalCode}',
+              paymentMethod: _selectedPaymentMethod,
+            )
+            .then((sent) {
+              if (sent) {
+                SnackbarHelper.success(
+                  context: context,
+                  title: 'Success',
+                  message: 'Your order has been placed successfully!',
+                );
+              } else {
+                SnackbarHelper.info(
+                  context: context,
+                  title: 'Email Failed',
+                  message: 'Could not send confirmation email.',
+                );
+              }
+            });
+      }
+    }
 
     cartProvider.clearCart();
     Navigator.popUntil(context, (route) => route.isFirst);

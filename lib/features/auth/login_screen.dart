@@ -276,7 +276,8 @@ class _LoginScreenState extends State<LoginScreen> {
       isScrollControlled: true,
       showDragHandle: true,
       context: context,
-      builder: (context) => Container(
+      useSafeArea: true,
+      builder: (context) => Padding(
         padding: EdgeInsets.only(
           left: 16.0,
           right: 16.0,

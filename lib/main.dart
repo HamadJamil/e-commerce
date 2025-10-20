@@ -6,7 +6,6 @@ import 'package:e_commerce/core/services/dummy_json_api_service.dart';
 import 'package:e_commerce/core/services/firebase_auth_service.dart';
 import 'package:e_commerce/core/services/firebase_auth_service_impl.dart';
 import 'package:e_commerce/features/auth/signup_screen.dart';
-import 'package:e_commerce/shared/models/order.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -20,6 +19,8 @@ import 'core/providers/favorites_provider.dart';
 import 'features/auth/splash_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/home/home_screen.dart';
+import 'core/services/email_service.dart';
+import 'core/services/emailjs_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,10 +51,18 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<CartProvider>(create: (_) => CartProvider()),
         ChangeNotifierProvider<FavoritesProvider>(
-          create: (_) => FavoritesProvider(),
+          create: (context) =>
+              FavoritesProvider(context.read<ProductProvider>()),
         ),
         ChangeNotifierProvider<AddressProvider>(
           create: (_) => AddressProvider(),
+        ),
+        Provider<EmailService>(
+          create: (_) => EmailJsService(
+            serviceId: 'service_nxhpyi7',
+            templateId: 'template_j7lhrqd',
+            userId: 'Tp3N8rsKPITyQ10Dc',
+          ),
         ),
         ChangeNotifierProvider<OrderProvider>(create: (_) => OrderProvider()),
       ],

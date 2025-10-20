@@ -2,7 +2,6 @@ import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/core/theme/text_style_helper.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -113,13 +112,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     },
                   ),
                   SizedBox(height: 16),
-                  IntlPhoneField(
-                    decoration: InputDecoration(labelText: 'Phone Number'),
+                  TextFormField(
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      prefix: Text('+92 '),
+                    ),
                     controller: _phoneController,
                     focusNode: _phoneFocusNode,
-                    onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                    initialValue: '+92',
-                    initialCountryCode: 'PK',
+                    onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter phone number';
+                      }
+                      if (value!.length < 10 || value.length > 11) {
+                        return 'Please enter valid phone number';
+                      }
+
+                      return null;
+                    },
                   ),
                   SizedBox(height: 16),
                   TextFormField(
