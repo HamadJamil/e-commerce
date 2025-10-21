@@ -1,19 +1,21 @@
 import 'package:e_commerce/shared/models/product_model.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:e_commerce/core/providers/product_provider.dart';
+import 'package:e_commerce/core/services/firestore_service.dart';
 
 class FavoritesProvider with ChangeNotifier {
   final Set<int> _favoriteIds = {};
   final ProductProvider _productProvider;
+  final FirestoreService _firestoreService;
 
-  FavoritesProvider(this._productProvider) {
-    _loadFavorites();
+  FavoritesProvider(this._productProvider, this._firestoreService);
+
+  Future<void> setFromIds(Set<int> ids) async {
+    _favoriteIds.clear();
+    _favoriteIds.addAll(ids);
+    notifyListeners();
   }
 
-  /// Returns the list of favorite Product objects that are currently loaded
-  /// by the ProductProvider. If a favorite id is not loaded yet it will not
-  /// appear until products are fetched.
   List<Product> get favorites {
     final products = _productProvider.products;
     return _favoriteIds
@@ -25,32 +27,34 @@ class FavoritesProvider with ChangeNotifier {
 
   Set<int> get favoriteIds => _favoriteIds;
 
-  Future<void> _loadFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    final favoriteIdsList = prefs.getStringList('favorites') ?? [];
-    _favoriteIds.addAll(favoriteIdsList.map(int.parse));
-    notifyListeners();
-  }
-
-  Future<void> _saveFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      'favorites',
-      _favoriteIds.map((id) => id.toString()).toList(),
-    );
-  }
-
   bool isFavorite(Product product) {
     return _favoriteIds.contains(product.id);
   }
 
-  Future<void> toggleFavorite(Product product) async {
-    if (_favoriteIds.contains(product.id)) {
-      _favoriteIds.remove(product.id);
+  Future<void> toggleFavoriteForUser(String uid, Product product) async {
+    final id = product.id;
+    final currentlyFavorite = _favoriteIds.contains(id);
+
+    if (currentlyFavorite) {
+      _favoriteIds.remove(id);
+      notifyListeners();
+      try {
+        await _firestoreService.removeFavorite(uid, id);
+      } catch (e) {
+        _favoriteIds.add(id);
+        notifyListeners();
+        throw Exception('Failed to remove favorite. Please try again.');
+      }
     } else {
-      _favoriteIds.add(product.id);
+      _favoriteIds.add(id);
+      notifyListeners();
+      try {
+        await _firestoreService.addFavorite(uid, id);
+      } catch (e) {
+        _favoriteIds.remove(id);
+        notifyListeners();
+        throw Exception('Failed to add favorite. Please try again.');
+      }
     }
-    await _saveFavorites();
-    notifyListeners();
   }
 }

@@ -9,7 +9,6 @@ class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
   List<Category> _categories = [];
-  // In-memory cache: category name -> ProductsResponse (contains products + total)
   final Map<String, ProductsResponse> _categoryCache = {};
   bool _isLoading = false;
   String _error = '';

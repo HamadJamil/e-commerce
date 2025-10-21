@@ -1,29 +1,36 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../shared/models/address.dart';
+import '../services/firestore_service.dart';
 
 class AddressProvider extends ChangeNotifier {
   final List<Address> _addresses = [];
   final Uuid _uuid = Uuid();
-  static const _kPrefsKey = 'saved_addresses';
+  final FirestoreService? _firestoreService;
 
-  AddressProvider() {
-    _loadAddresses();
-  }
+  AddressProvider([this._firestoreService]);
 
   List<Address> get addresses => List.unmodifiable(_addresses);
 
-  void addAddress({
+  void setAddressesFromList(List<Address> addresses) {
+    _addresses.clear();
+    _addresses.addAll(addresses);
+
+    if (_addresses.isNotEmpty && !_addresses.any((a) => a.isDefault)) {
+      _addresses.first.isDefault = true;
+    }
+    notifyListeners();
+  }
+
+  Future<void> addAddressForUser({
+    required String uid,
     required String name,
     required String addressLine,
     required String city,
     required String postalCode,
     bool makeDefault = false,
-  }) {
+  }) async {
     final address = Address(
       id: _uuid.v4(),
       name: name,
@@ -34,64 +41,62 @@ class AddressProvider extends ChangeNotifier {
     );
 
     if (address.isDefault) {
-      for (var a in _addresses) {
-        a.isDefault = false;
-      }
+      for (var a in _addresses) a.isDefault = false;
     }
-
     _addresses.add(address);
-    _saveAddresses();
     notifyListeners();
-  }
 
-  void removeAddress(String id) {
-    _addresses.removeWhere((a) => a.id == id);
-    if (_addresses.isNotEmpty && !_addresses.any((a) => a.isDefault)) {
-      _addresses.first.isDefault = true;
-    }
-    _saveAddresses();
-    notifyListeners();
-  }
+    if (_firestoreService == null) return;
 
-  void setDefault(String id) {
-    for (var a in _addresses) {
-      a.isDefault = a.id == id;
-    }
-    _saveAddresses();
-    notifyListeners();
-  }
-
-  Future<void> _loadAddresses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_kPrefsKey);
-    if (jsonStr == null || jsonStr.isEmpty) return;
     try {
-      final List<dynamic> list = json.decode(jsonStr);
-      _addresses.clear();
-      for (var item in list) {
-        if (item is Map<String, dynamic>) {
-          _addresses.add(Address.fromMap(item));
-        } else if (item is String) {
-          // sometimes maps are encoded as strings; try to decode
-          final decoded = json.decode(item);
-          if (decoded is Map<String, dynamic>) {
-            _addresses.add(Address.fromMap(decoded));
-          }
-        }
-      }
-      // Ensure exactly one default exists
+      await _firestoreService.addAddress(uid, address);
+    } catch (e) {
+      _addresses.removeWhere((a) => a.id == address.id);
       if (_addresses.isNotEmpty && !_addresses.any((a) => a.isDefault)) {
         _addresses.first.isDefault = true;
       }
       notifyListeners();
-    } catch (_) {
-      // ignore malformed data
+      throw Exception('Failed to add address. Please try again.');
     }
   }
 
-  Future<void> _saveAddresses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = _addresses.map((a) => a.toMap()).toList();
-    await prefs.setString(_kPrefsKey, json.encode(list));
+  Future<void> removeAddressForUser(String uid, String addressId) async {
+    final prev = List<Address>.from(_addresses);
+    _addresses.removeWhere((a) => a.id == addressId);
+    if (_addresses.isNotEmpty && !_addresses.any((a) => a.isDefault)) {
+      _addresses.first.isDefault = true;
+    }
+    notifyListeners();
+
+    if (_firestoreService == null) return;
+
+    try {
+      await _firestoreService.removeAddress(uid, addressId);
+    } catch (e) {
+      _addresses.clear();
+      _addresses.addAll(prev);
+      notifyListeners();
+      throw Exception('Failed to remove address. Please try again.');
+    }
+  }
+
+  Future<void> setDefaultForUser(String uid, String id) async {
+    final prev = List<Address>.from(_addresses);
+    for (var a in _addresses) a.isDefault = a.id == id;
+    notifyListeners();
+
+    if (_firestoreService == null) return;
+
+    try {
+      await _firestoreService.updateAddress(
+        uid,
+        _addresses.firstWhere((a) => a.id == id),
+      );
+    } catch (e) {
+      _addresses.clear();
+      _addresses.addAll(prev);
+      notifyListeners();
+      throw Exception('Failed to set default address. Please try again.');
+    }
   }
 }
