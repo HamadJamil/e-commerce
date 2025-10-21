@@ -1,4 +1,4 @@
-// lib/core/theme/app_theme.dart (Updated)
+
 import 'package:e_commerce/core/theme/text_style_helper.dart';
 import 'package:flutter/material.dart';
 

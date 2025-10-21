@@ -5,6 +5,7 @@ import 'package:e_commerce/core/services/api_service.dart';
 import 'package:e_commerce/core/services/dummy_json_api_service.dart';
 import 'package:e_commerce/core/services/firebase_auth_service.dart';
 import 'package:e_commerce/core/services/firebase_auth_service_impl.dart';
+import 'core/services/firestore_service.dart';
 import 'package:e_commerce/features/auth/signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -41,21 +42,30 @@ class MyApp extends StatelessWidget {
         Provider<FirebaseAuthService>(
           create: (_) => FirebaseAuthServiceImpl(FirebaseAuth.instance),
         ),
+        Provider<FirestoreService>(
+          create: (_) => FirestoreService(),
+        ),
         ChangeNotifierProvider<AuthenticationProvider>(
-          create: (context) =>
-              AuthenticationProvider(context.read<FirebaseAuthService>()),
+          create: (context) => AuthenticationProvider(
+            context.read<FirebaseAuthService>(),
+            context.read<FirestoreService>(),
+          ),
         ),
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
         ChangeNotifierProvider<ProductProvider>(
           create: (context) => ProductProvider(context.read<ApiService>()),
         ),
-        ChangeNotifierProvider<CartProvider>(create: (_) => CartProvider()),
+        ChangeNotifierProvider<CartProvider>(
+          create: (context) => CartProvider(context.read<FirestoreService>()),
+        ),
         ChangeNotifierProvider<FavoritesProvider>(
-          create: (context) =>
-              FavoritesProvider(context.read<ProductProvider>()),
+          create: (context) => FavoritesProvider(
+            context.read<ProductProvider>(),
+            context.read<FirestoreService>(),
+          ),
         ),
         ChangeNotifierProvider<AddressProvider>(
-          create: (_) => AddressProvider(),
+          create: (context) => AddressProvider(context.read<FirestoreService>()),
         ),
         Provider<EmailService>(
           create: (_) => EmailJsService(
@@ -64,7 +74,12 @@ class MyApp extends StatelessWidget {
             userId: 'Tp3N8rsKPITyQ10Dc',
           ),
         ),
-        ChangeNotifierProvider<OrderProvider>(create: (_) => OrderProvider()),
+        ChangeNotifierProvider<OrderProvider>(
+          create: (context) => OrderProvider(
+            context.read<FirestoreService>(),
+            context.read<AuthenticationProvider>(),
+          ),
+        ),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

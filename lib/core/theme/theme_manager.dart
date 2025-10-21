@@ -1,4 +1,4 @@
-// lib/core/theme/theme_manager.dart
+
 import 'dart:ui';
 
 import 'app_theme.dart';
@@ -158,7 +158,7 @@ class ThemeManager {
   static List<AppTheme> get allThemes => _themes.values.toList();
   static List<String> get themeKeys => _themes.keys.toList();
 
-  // Helper method to get theme by index
+  
   static AppTheme getThemeByIndex(int index) {
     if (index >= 0 && index < _themes.length) {
       return _themes.values.elementAt(index);
@@ -166,7 +166,7 @@ class ThemeManager {
     return _themes['ocean_blue']!;
   }
 
-  // Helper method to get theme key by index
+  
   static String getThemeKeyByIndex(int index) {
     if (index >= 0 && index < _themes.length) {
       return _themes.keys.elementAt(index);
@@ -174,7 +174,7 @@ class ThemeManager {
     return 'ocean_blue';
   }
 
-  // Helper method to get theme index by key
+  
   static int getThemeIndex(String key) {
     return _themes.keys.toList().indexOf(key);
   }

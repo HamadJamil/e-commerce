@@ -46,7 +46,7 @@ class TextStyleHelper {
   static TextStyle? labelSmall(BuildContext context) =>
       Theme.of(context).textTheme.labelSmall;
 
-  // Helper methods for common use cases
+  
   static TextStyle? pageTitle(BuildContext context) =>
       headlineMedium(context)?.copyWith(fontWeight: FontWeight.bold);
 
