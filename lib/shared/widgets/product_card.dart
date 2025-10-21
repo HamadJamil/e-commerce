@@ -1,5 +1,7 @@
 import 'package:e_commerce/core/providers/cart_provider.dart';
 import 'package:e_commerce/core/providers/favorites_provider.dart';
+import 'package:e_commerce/core/providers/auth_provider.dart';
+import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:e_commerce/features/home/category_section.dart';
 import 'package:e_commerce/features/product/product_detail_screen.dart';
 import 'package:e_commerce/shared/models/product_model.dart';
@@ -67,7 +69,7 @@ class ProductCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            '\$${product.discountedPrice.toStringAsFixed(2)}',
+                            'PKR${product.discountedPrice.toStringAsFixed(0)}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).primaryColor,
@@ -76,10 +78,11 @@ class ProductCard extends StatelessWidget {
                           if (product.discountPercentage > 0) ...[
                             Spacer(),
                             Text(
-                              '\$${product.price.toStringAsFixed(2)}',
+                              '-${product.discountPercentage.toStringAsFixed(1)}%',
                               style: TextStyle(
-                                decoration: TextDecoration.lineThrough,
-                                color: Colors.grey,
+                                color: Colors.green,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             SizedBox(width: 12),
@@ -98,8 +101,24 @@ class ProductCard extends StatelessWidget {
                     isFavorite ? Icons.favorite : Icons.favorite_border,
                     color: isFavorite ? Colors.red : Colors.grey,
                   ),
-                  onPressed: () {
-                    favoritesProvider.toggleFavorite(product);
+                  onPressed: () async {
+                    final uid = context
+                        .read<AuthenticationProvider>()
+                        .currentUser
+                        ?.uid;
+
+                    try {
+                      await favoritesProvider.toggleFavoriteForUser(
+                        uid!,
+                        product,
+                      );
+                    } catch (e) {
+                      SnackbarHelper.error(
+                        context: context,
+                        title: 'Failed',
+                        message: e.toString(),
+                      );
+                    }
                   },
                 ),
               ),
@@ -111,11 +130,27 @@ class ProductCard extends StatelessWidget {
                   builder: (context, cartProvider, child) {
                     final isInCart = cartProvider.isInCart(product);
                     return ElevatedButton.icon(
-                      onPressed: () {
-                        if (isInCart) {
-                          cartProvider.removeFromCart(product);
-                        } else {
-                          cartProvider.addToCart(product);
+                      onPressed: () async {
+                        final uid = context
+                            .read<AuthenticationProvider>()
+                            .currentUser
+                            ?.uid;
+
+                        try {
+                          if (isInCart) {
+                            await cartProvider.removeFromCartForUser(
+                              uid!,
+                              product,
+                            );
+                          } else {
+                            await cartProvider.addToCartForUser(uid!, product);
+                          }
+                        } catch (e) {
+                          SnackbarHelper.error(
+                            context: context,
+                            title: 'Failed',
+                            message: e.toString(),
+                          );
                         }
                       },
                       icon: Icon(isInCart ? Icons.remove : Icons.add),

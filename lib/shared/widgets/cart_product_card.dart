@@ -55,14 +55,14 @@ class CartProductCard extends StatelessWidget {
                         ),
                         Spacer(),
                         Text(
-                          '\$${item.product.price.toStringAsFixed(2)}',
+                          'PKR${item.product.price.toStringAsFixed(0)}',
                           style: TextStyle(
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
                         SizedBox(width: 10),
                         Text(
-                          '\$${item.product.discountedPrice.toStringAsFixed(2)}',
+                          'PKR${item.product.discountedPrice.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
@@ -72,7 +72,7 @@ class CartProductCard extends StatelessWidget {
                     ),
                   ] else
                     Text(
-                      '\$${item.product.price.toStringAsFixed(2)}',
+                      'PKR${item.product.price.toStringAsFixed(0)}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).primaryColor,
@@ -86,7 +86,7 @@ class CartProductCard extends StatelessWidget {
               QuantitySelector(item: item),
               IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () => onRemove,
+                onPressed: () => onRemove?.call(),
               ),
             ] else
               SizedBox.shrink(),
