@@ -37,7 +37,7 @@ class Product {
       title: json['title'],
       description: json['description'],
       category: json['category'],
-      price: json['price']?.toDouble() ?? 0.0,
+      price: convertDollarToPkr(json['price']?.toDouble()),
       discountPercentage: json['discountPercentage']?.toDouble() ?? 0.0,
       rating: json['rating']?.toDouble() ?? 0.0,
       stock: json['stock'],
@@ -72,6 +72,11 @@ class Product {
   }
 
   double get discountedPrice => price - (price * discountPercentage / 100);
+}
+
+double convertDollarToPkr(double dollarPrice) {
+  const double exchangeRate = 50.0;
+  return dollarPrice * exchangeRate;
 }
 
 class Review {
