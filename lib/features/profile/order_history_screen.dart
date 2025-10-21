@@ -33,7 +33,7 @@ class OrderHistoryScreen extends StatelessWidget {
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Total: \$${order.total.toStringAsFixed(2)}'),
+                      Text('Total: PKR${order.total.toStringAsFixed(2)}'),
                       Text(
                         '${order.date.day}/${order.date.month}/${order.date.year}',
                         style: TextStyle(fontSize: 12, color: Colors.grey),

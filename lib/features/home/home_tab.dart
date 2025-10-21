@@ -136,7 +136,7 @@ class _HomeTabState extends State<HomeTab> {
                     },
                   ),
 
-                  // Todo: Notification
+                  
                   IconButton(
                     icon: Icon(Icons.notifications_outlined),
                     onPressed: () {},
@@ -144,7 +144,7 @@ class _HomeTabState extends State<HomeTab> {
                 ],
               ),
 
-              // Search Bar
+              
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.all(16),
@@ -157,7 +157,7 @@ class _HomeTabState extends State<HomeTab> {
                 ),
               ),
 
-              // Heading
+              
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.only(
@@ -174,7 +174,7 @@ class _HomeTabState extends State<HomeTab> {
                   ),
                 ),
               ),
-              // Categories Section
+              
               SliverToBoxAdapter(
                 child: CategorySection(onCategorySelected: _onCategorySelected),
               ),
@@ -195,7 +195,7 @@ class _HomeTabState extends State<HomeTab> {
                   ),
                 ),
               ),
-              // Products Grid
+              
               _buildProductsGrid(),
 
               Consumer<ProductProvider>(

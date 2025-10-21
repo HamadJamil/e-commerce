@@ -81,7 +81,7 @@ class ProductSearchDelegate extends SearchDelegate<String> {
               ),
               title: Text(product.title),
               subtitle: Text(
-                '\$${product.discountedPrice.toStringAsFixed(2)}',
+                'PKR${product.discountedPrice.toStringAsFixed(0)}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).primaryColor,

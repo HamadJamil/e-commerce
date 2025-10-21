@@ -43,7 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final authProvider = context.read<AuthenticationProvider>();
-      await authProvider.signIn(
+      await authProvider.signInAndInitialize(
+        context,
         _emailController.text.trim(),
         _passwordController.text,
       );
@@ -107,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pop(context);
                       try {
                         await authProvider.sendEmailVerification();
+                        await authProvider.signOut();
                         SnackbarHelper.success(
                           context: context,
                           title: 'Success',

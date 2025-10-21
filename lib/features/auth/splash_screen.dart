@@ -27,6 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else if (!authProvider.isEmailVerified) {
       Navigator.pushReplacementNamed(context, '/login');
     } else {
+      await authProvider.loadUserAndInitialize(context);
       Navigator.pushReplacementNamed(context, '/home');
     }
   }

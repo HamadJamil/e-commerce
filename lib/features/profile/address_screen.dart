@@ -1,4 +1,5 @@
 import 'package:e_commerce/core/providers/address_provider.dart';
+import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -110,8 +111,15 @@ class _AddressScreenState extends State<AddressScreen> {
                     labelText: 'Postal Code',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Enter postal code' : null,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Enter postal code';
+                    }
+                    if (v.length < 5 || v.length > 5) {
+                      return 'Enter valid postal code';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 12),
                 Row(
@@ -132,9 +140,16 @@ class _AddressScreenState extends State<AddressScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        context.read<AddressProvider>().addAddress(
+                    onPressed: () async {
+                      if (!(_formKey.currentState?.validate() ?? false)) return;
+                      final uid = context
+                          .read<AuthenticationProvider>()
+                          .currentUser
+                          ?.uid;
+
+                      try {
+                        await context.read<AddressProvider>().addAddressForUser(
+                          uid: uid!,
                           name: _nameController.text.trim(),
                           addressLine: _addressController.text.trim(),
                           city: _cityController.text.trim(),
@@ -150,6 +165,18 @@ class _AddressScreenState extends State<AddressScreen> {
                         _makeDefault = false;
 
                         Navigator.pop(context);
+
+                        SnackbarHelper.success(
+                          context: context,
+                          title: 'Saved',
+                          message: 'Address added successfully.',
+                        );
+                      } catch (e) {
+                        SnackbarHelper.error(
+                          context: context,
+                          title: 'Failed',
+                          message: e.toString(),
+                        );
                       }
                     },
                     child: Text('Save Address'),
@@ -212,13 +239,29 @@ class _AddressScreenState extends State<AddressScreen> {
                   color: Colors.red,
                   child: Icon(Icons.delete, color: Colors.white),
                 ),
-                onDismissed: (_) {
-                  context.read<AddressProvider>().removeAddress(a.id);
-                  SnackbarHelper.info(
-                    context: context,
-                    title: 'Removed',
-                    message: 'Address removed',
-                  );
+                onDismissed: (_) async {
+                  final uid = context
+                      .read<AuthenticationProvider>()
+                      .currentUser
+                      ?.uid;
+
+                  try {
+                    await context.read<AddressProvider>().removeAddressForUser(
+                      uid!,
+                      a.id,
+                    );
+                    SnackbarHelper.info(
+                      context: context,
+                      title: 'Removed',
+                      message: 'Address removed',
+                    );
+                  } catch (e) {
+                    SnackbarHelper.error(
+                      context: context,
+                      title: 'Failed',
+                      message: e.toString(),
+                    );
+                  }
                 },
                 child: Card(
                   child: ListTile(
@@ -240,9 +283,29 @@ class _AddressScreenState extends State<AddressScreen> {
                     trailing: a.isDefault
                         ? Text('Default', style: TextStyle(color: Colors.green))
                         : TextButton(
-                            onPressed: () => context
-                                .read<AddressProvider>()
-                                .setDefault(a.id),
+                            onPressed: () async {
+                              final uid = context
+                                  .read<AuthenticationProvider>()
+                                  .currentUser
+                                  ?.uid;
+
+                              try {
+                                await context
+                                    .read<AddressProvider>()
+                                    .setDefaultForUser(uid!, a.id);
+                                SnackbarHelper.success(
+                                  context: context,
+                                  title: 'Updated',
+                                  message: 'Default address updated.',
+                                );
+                              } catch (e) {
+                                SnackbarHelper.error(
+                                  context: context,
+                                  title: 'Failed',
+                                  message: e.toString(),
+                                );
+                              }
+                            },
                             child: Text('Set Default'),
                           ),
                   ),

@@ -28,10 +28,10 @@ class OrderDetailScreen extends StatelessWidget {
             ...order.items.map((item) => ListTile(
               title: Text(item.product.title),
               subtitle: Text('Qty: ${item.quantity}'),
-              trailing: Text('\$${item.product.discountedPrice.toStringAsFixed(2)}'),
+              trailing: Text('PKR${item.product.discountedPrice.toStringAsFixed(2)}'),
             )),
             Divider(height: 32),
-            Text('Total: \$${order.total.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
+            Text('Total: PKR${order.total.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
           ],
         ),
       ),

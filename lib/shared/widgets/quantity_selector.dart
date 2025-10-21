@@ -1,4 +1,6 @@
 import 'package:e_commerce/core/providers/cart_provider.dart';
+import 'package:e_commerce/core/providers/auth_provider.dart';
+import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
 import 'package:e_commerce/shared/models/cart_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,11 +16,22 @@ class QuantitySelector extends StatelessWidget {
       children: [
         IconButton(
           icon: Icon(Icons.remove, size: 20),
-          onPressed: () {
-            context.read<CartProvider>().updateQuantity(
-              item.product,
-              item.quantity - 1,
-            );
+          onPressed: () async {
+            final uid = context.read<AuthenticationProvider>().currentUser?.uid;
+
+            try {
+              await context.read<CartProvider>().updateQuantityForUser(
+                uid!,
+                item.product,
+                item.quantity - 1,
+              );
+            } catch (e) {
+              SnackbarHelper.error(
+                context: context,
+                title: 'Failed',
+                message: e.toString(),
+              );
+            }
           },
         ),
         Container(
@@ -31,11 +44,22 @@ class QuantitySelector extends StatelessWidget {
         ),
         IconButton(
           icon: Icon(Icons.add, size: 20),
-          onPressed: () {
-            context.read<CartProvider>().updateQuantity(
-              item.product,
-              item.quantity + 1,
-            );
+          onPressed: () async {
+            final uid = context.read<AuthenticationProvider>().currentUser?.uid;
+
+            try {
+              await context.read<CartProvider>().updateQuantityForUser(
+                uid!,
+                item.product,
+                item.quantity + 1,
+              );
+            } catch (e) {
+              SnackbarHelper.error(
+                context: context,
+                title: 'Failed',
+                message: e.toString(),
+              );
+            }
           },
         ),
       ],

@@ -1,5 +1,6 @@
 import 'package:e_commerce/core/providers/cart_provider.dart';
 import 'package:e_commerce/core/providers/favorites_provider.dart';
+import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/core/theme/text_style_helper.dart';
 import 'package:e_commerce/shared/models/product_model.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
@@ -33,17 +34,30 @@ class ProductDetailScreen extends StatelessWidget {
             actions: [
               Consumer<FavoritesProvider>(
                 builder: (context, favoritesProvider, child) {
+                  final isFav = favoritesProvider.isFavorite(product);
                   return IconButton(
                     icon: Icon(
-                      favoritesProvider.isFavorite(product)
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: favoritesProvider.isFavorite(product)
-                          ? Colors.red
-                          : Colors.white,
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? Colors.red : Colors.white,
                     ),
-                    onPressed: () {
-                      favoritesProvider.toggleFavorite(product);
+                    onPressed: () async {
+                      final uid = context
+                          .read<AuthenticationProvider>()
+                          .currentUser
+                          ?.uid;
+
+                      try {
+                        await favoritesProvider.toggleFavoriteForUser(
+                          uid!,
+                          product,
+                        );
+                      } catch (e) {
+                        SnackbarHelper.error(
+                          context: context,
+                          title: 'Failed',
+                          message: e.toString(),
+                        );
+                      }
                     },
                   );
                 },
@@ -75,7 +89,7 @@ class ProductDetailScreen extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '\$${product.discountedPrice.toStringAsFixed(2)}',
+                        'PKR${product.discountedPrice.toStringAsFixed(0)}',
                         style: Theme.of(context).textTheme.headline4?.copyWith(
                           color: Theme.of(context).primaryColor,
                         ),
@@ -83,14 +97,14 @@ class ProductDetailScreen extends StatelessWidget {
                       if (product.discountPercentage > 0) ...[
                         SizedBox(width: 12),
                         Text(
-                          '\$${product.price.toStringAsFixed(2)}',
+                          'PKR${product.price.toStringAsFixed(1)}',
                           style: TextStyle(
                             decoration: TextDecoration.lineThrough,
                             color: Colors.grey,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
-                        SizedBox(width: 8),
+                        Spacer(),
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 6,
@@ -255,20 +269,33 @@ class ProductDetailScreen extends StatelessWidget {
               final isInCart = cartProvider.isInCart(product);
               return Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (isInCart) {
-                      cartProvider.removeFromCart(product);
-                      SnackbarHelper.success(
+                  onPressed: () async {
+                    final uid = context
+                        .read<AuthenticationProvider>()
+                        .currentUser
+                        ?.uid;
+
+                    try {
+                      if (isInCart) {
+                        await cartProvider.removeFromCartForUser(uid!, product);
+                        SnackbarHelper.success(
+                          context: context,
+                          title: 'Success',
+                          message: 'Removed from cart',
+                        );
+                      } else {
+                        await cartProvider.addToCartForUser(uid!, product);
+                        SnackbarHelper.success(
+                          context: context,
+                          title: 'Success',
+                          message: 'Added to cart',
+                        );
+                      }
+                    } catch (e) {
+                      SnackbarHelper.error(
                         context: context,
-                        title: 'Success',
-                        message: 'Removed from cart',
-                      );
-                    } else {
-                      cartProvider.addToCart(product);
-                      SnackbarHelper.success(
-                        context: context,
-                        title: 'Success',
-                        message: 'Added to cart',
+                        title: 'Failed',
+                        message: e.toString(),
                       );
                     }
                   },

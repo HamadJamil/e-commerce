@@ -1,4 +1,5 @@
 import 'package:e_commerce/core/providers/cart_provider.dart';
+import 'package:e_commerce/core/providers/auth_provider.dart';
 import 'package:e_commerce/core/theme/text_style_helper.dart';
 import 'package:e_commerce/shared/widgets/cart_product_card.dart';
 import 'package:e_commerce/shared/widgets/snack_bar_helper.dart';
@@ -52,15 +53,28 @@ class CartScreen extends StatelessWidget {
                     final item = cartProvider.items[index];
                     return CartProductCard(
                       item: item,
-                      onRemove: () {
-                        context.read<CartProvider>().removeFromCart(
-                          item.product,
-                        );
-                        SnackbarHelper.info(
-                          context: context,
-                          title: 'Success',
-                          message: 'Removed from cart',
-                        );
+                      onRemove: () async {
+                        final uid = context
+                            .read<AuthenticationProvider>()
+                            .currentUser
+                            ?.uid;
+
+                        try {
+                          await context
+                              .read<CartProvider>()
+                              .removeFromCartForUser(uid!, item.product);
+                          SnackbarHelper.info(
+                            context: context,
+                            title: 'Success',
+                            message: 'Removed from cart',
+                          );
+                        } catch (e) {
+                          SnackbarHelper.error(
+                            context: context,
+                            title: 'Failed',
+                            message: e.toString(),
+                          );
+                        }
                       },
                     );
                   },
@@ -91,7 +105,7 @@ class CartScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               Text(
-                '\$${cartProvider.actualAmount.toStringAsFixed(2)}',
+                'PKR${cartProvider.actualAmount.toStringAsFixed(0)}',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(),
               ),
             ],

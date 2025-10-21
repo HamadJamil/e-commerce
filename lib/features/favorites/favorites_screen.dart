@@ -2,7 +2,6 @@ import 'package:e_commerce/core/providers/favorites_provider.dart';
 import 'package:e_commerce/core/theme/text_style_helper.dart';
 import 'package:e_commerce/shared/widgets/product_card.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class FavoritesScreen extends StatelessWidget {
@@ -19,11 +18,10 @@ class FavoritesScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  LottieBuilder.asset(
-                    'assets/no_favorites.json',
-                    repeat: false,
-                    height: 240,
-                    width: 240,
+                  Icon(
+                    Icons.favorite_border_rounded,
+                    size: 64,
+                    color: Colors.grey,
                   ),
                   Text(
                     'No favorites yet',
